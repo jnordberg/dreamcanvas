@@ -1,0 +1,24 @@
+{
+  "name": "dreamcanvas",
+  "private": true,
+  "browser": {
+    "canvas": "./client/canvas.js"
+  },
+  "dependencies": {
+    "@types/lru-cache": "^4.0.0",
+    "@types/sharp": "^0.17.1",
+    "@types/uws": "^0.13.0",
+    "canvas": "github:automattic/node-canvas",
+    "lru-cache": "^4.0.2",
+    "protobufjs": "github:dcodeio/protobuf.js#3a95945",
+    "sharp": "^0.17.3",
+    "ts-node": "^3.0.2",
+    "tsify": "^3.0.1",
+    "typescript": "^2.3.1",
+    "wintersmith": "^2.3.6",
+    "wintersmith-browserify": "^1.2.1",
+    "wintersmith-livereload": "^0.2.2",
+    "wintersmith-nunjucks": "^1.1.0",
+    "wsrpc": "^1.2.0"
+  }
+}
