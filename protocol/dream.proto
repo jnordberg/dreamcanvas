@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+service Dreamer {
+    rpc Dream (DreamRequest) returns (DreamResponse) {}
+}
+
+message DreamRequest {
+    string layer = 1;
+    uint32 channel = 2;
+    bytes image = 3;
+}
+
+message DreamResponse {
+    bytes image = 1;
+}

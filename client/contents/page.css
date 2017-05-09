@@ -1,0 +1,45 @@
+
+
+
+* {
+    margin: 0; padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 16px;
+    background: #e6e6e6;
+    color: #191919;
+    line-height: 1.314;
+    padding: 1em 2em;
+    max-width: 60em;
+    margin: 0 auto;
+}
+
+a, a:visited {
+    color: #4186df;
+}
+
+h1, h2, h3 {
+    margin: 1em 0 0.5em;
+}
+
+hr {
+    margin: 1em 0;
+}
+
+@media (max-width: 500px) {
+    body {
+        padding: 1em;
+    }
+}
+
+#donation-buttons {
+    display: flex;
+
+}
+
+#donation-buttons .button {
+    margin: 1em;
+}

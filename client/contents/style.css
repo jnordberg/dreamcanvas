@@ -10,28 +10,43 @@ body {
     font-size: 14px;
     font-weight: 300;
     background: black;
-    color: #f5f5f5;
-}
-
-.connected body {
     background: #ffffff;
 }
 
-a {
-    color: #f5f5f5;
-}
-
-a, .status {
+a, .status, .pan-handle, .info    {
+    color: rgba(255, 255, 255, 0.75);
     background: rgba(0, 0, 0, 0.45);
     top: 0;
     right: 0;
     padding: 0.6em 0.8em;
     z-index: 1;
+    text-decoration: none;
+}
+
+a, .pan-handle {
+    color: #ffffff;
+    font-weight: 400;
 }
 
 .status {
     right: auto;
     left: 0;
+    padding-left: 2em;
+    padding-right: 2em;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.status span {
+    margin-right: .5em;
+    color: #ffffff;
+    font-weight: 400;
+}
+
+.pan-handle {
+    top: auto;
+    bottom: 0;
+    font-size: 1.8em;
+    cursor: move;
 }
 
 body, html, canvas {
@@ -57,47 +72,53 @@ canvas, div, a {
 .picker span.active {
     outline: 0.2em solid white;
     border-left: 0.2em solid black;
-    z-index: 1;
+    z-index: 2;
 }
 
 .info {
-    text-align: center;
-    left: 50%;
-    top: 50%;
-    width: 10em;
-    height: 2em;
-    line-height: 2em;
-    margin-left: -5em;
-    margin-top: -1em;
-    background: rgba(0, 0, 0, 0.45);
     display: none;
+    text-align: center;
 }
 
 .info.pan {
     top: auto;
     bottom: 0;
+    left: 50%;
+    width: 10em;
+    margin-left: -5em;
+}
+
+.info.loading {
+    right: 50%;
+    top: 50%;
+    width: 10em;
+    margin-right: -5em;
+    margin-top: -1em;
+    font-size: 1.5em;
 }
 
 html.loading .info.loading {
     display: block;
 }
 
-html.pan .info.pan {
-    display: block;
+html.has-canvas .info.loading {
+    background-color: rgba(255, 255, 255, 0.75);
+    color: transparent;
+    overflow: hidden;
+    margin-top: 0;
+    margin-right: 0;
+    width: .6em;
+    height: .6em;
+    padding: 0;
+    border-radius: 100%;
+    top: .45em;
+    left: .4em;
+    z-index: 2
+
 }
 
-.pan-handle {
+html.pan .info.pan {
     display: block;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.45);
-    width: 1.5em;
-    height: 1.5em;
-    line-height: 1.5em;
-    text-align: center;
-    font-size: 2em;
-    cursor: move;
 }
 
 html.pan canvas, html.pan-move canvas {

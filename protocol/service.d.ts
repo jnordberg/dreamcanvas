@@ -1,10 +1,10 @@
 import * as $protobuf from "protobufjs";
 
-/** Represents a Painter */
-export class Painter extends $protobuf.rpc.Service {
+/** Represents a DreamPainter */
+export class DreamPainter extends $protobuf.rpc.Service {
 
     /**
-     * Constructs a new Painter service.
+     * Constructs a new DreamPainter service.
      * @param rpcImpl RPC implementation
      * @param [requestDelimited=false] Whether requests are length-delimited
      * @param [responseDelimited=false] Whether responses are length-delimited
@@ -12,20 +12,20 @@ export class Painter extends $protobuf.rpc.Service {
     constructor(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean);
 
     /**
-     * Creates new Painter service using the specified rpc implementation.
+     * Creates new DreamPainter service using the specified rpc implementation.
      * @param rpcImpl RPC implementation
      * @param [requestDelimited=false] Whether requests are length-delimited
      * @param [responseDelimited=false] Whether responses are length-delimited
      * @returns RPC service. Useful where requests and/or responses are streamed.
      */
-    public static create(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean): Painter;
+    public static create(rpcImpl: $protobuf.RPCImpl, requestDelimited?: boolean, responseDelimited?: boolean): DreamPainter;
 
     /**
      * Calls GetCanvas.
      * @param request CanvasRequest message or plain object
      * @param callback Node-style callback called with the error, if any, and CanvasResponse
      */
-    public getCanvas(request: ICanvasRequest, callback: Painter.GetCanvasCallback): void;
+    public getCanvas(request: ICanvasRequest, callback: DreamPainter.GetCanvasCallback): void;
 
     /**
      * Calls GetCanvas.
@@ -36,118 +36,34 @@ export class Painter extends $protobuf.rpc.Service {
 
     /**
      * Calls Paint.
-     * @param request PaintEvent message or plain object
-     * @param callback Node-style callback called with the error, if any, and Empty
+     * @param request PaintRequest message or plain object
+     * @param callback Node-style callback called with the error, if any, and PaintResponse
      */
-    public paint(request: IPaintEvent, callback: Painter.PaintCallback): void;
+    public paint(request: IPaintRequest, callback: DreamPainter.PaintCallback): void;
 
     /**
      * Calls Paint.
-     * @param request PaintEvent message or plain object
+     * @param request PaintRequest message or plain object
      * @returns Promise
      */
-    public paint(request: IPaintEvent): Promise<Empty>;
+    public paint(request: IPaintRequest): Promise<PaintResponse>;
 }
 
-export namespace Painter {
+export namespace DreamPainter {
 
     /**
-     * Callback as used by {@link Painter#getCanvas}.
+     * Callback as used by {@link DreamPainter#getCanvas}.
      * @param error Error, if any
      * @param [response] CanvasResponse
      */
     type GetCanvasCallback = (error: (Error|null), response?: CanvasResponse) => void;
 
     /**
-     * Callback as used by {@link Painter#paint}.
+     * Callback as used by {@link DreamPainter#paint}.
      * @param error Error, if any
-     * @param [response] Empty
+     * @param [response] PaintResponse
      */
-    type PaintCallback = (error: (Error|null), response?: Empty) => void;
-}
-
-/** Properties of an Empty. */
-export interface IEmpty {
-}
-
-/** Represents an Empty. */
-export class Empty {
-
-    /**
-     * Constructs a new Empty.
-     * @param [properties] Properties to set
-     */
-    constructor(properties?: IEmpty);
-
-    /**
-     * Creates a new Empty instance using the specified properties.
-     * @param [properties] Properties to set
-     * @returns Empty instance
-     */
-    public static create(properties?: IEmpty): Empty;
-
-    /**
-     * Encodes the specified Empty message. Does not implicitly {@link Empty.verify|verify} messages.
-     * @param message Empty message or plain object to encode
-     * @param [writer] Writer to encode to
-     * @returns Writer
-     */
-    public static encode(message: IEmpty, writer?: $protobuf.Writer): $protobuf.Writer;
-
-    /**
-     * Encodes the specified Empty message, length delimited. Does not implicitly {@link Empty.verify|verify} messages.
-     * @param message Empty message or plain object to encode
-     * @param [writer] Writer to encode to
-     * @returns Writer
-     */
-    public static encodeDelimited(message: IEmpty, writer?: $protobuf.Writer): $protobuf.Writer;
-
-    /**
-     * Decodes an Empty message from the specified reader or buffer.
-     * @param reader Reader or buffer to decode from
-     * @param [length] Message length if known beforehand
-     * @returns Empty
-     * @throws {Error} If the payload is not a reader or valid buffer
-     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-     */
-    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Empty;
-
-    /**
-     * Decodes an Empty message from the specified reader or buffer, length delimited.
-     * @param reader Reader or buffer to decode from
-     * @returns Empty
-     * @throws {Error} If the payload is not a reader or valid buffer
-     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-     */
-    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Empty;
-
-    /**
-     * Verifies an Empty message.
-     * @param message Plain object to verify
-     * @returns `null` if valid, otherwise the reason why it is not
-     */
-    public static verify(message: { [k: string]: any }): (string|null);
-
-    /**
-     * Creates an Empty message from a plain object. Also converts values to their respective internal types.
-     * @param object Plain object
-     * @returns Empty
-     */
-    public static fromObject(object: { [k: string]: any }): Empty;
-
-    /**
-     * Creates a plain object from an Empty message. Also converts values to other types if specified.
-     * @param message Empty
-     * @param [options] Conversion options
-     * @returns Plain object
-     */
-    public static toObject(message: Empty, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-    /**
-     * Converts this Empty to JSON.
-     * @returns JSON object
-     */
-    public toJSON(): { [k: string]: any };
+    type PaintCallback = (error: (Error|null), response?: PaintResponse) => void;
 }
 
 /** Properties of a Position. */
@@ -246,6 +162,198 @@ export class Position {
     public toJSON(): { [k: string]: any };
 }
 
+/** Properties of a PaintRequest. */
+export interface IPaintRequest {
+
+    /** PaintRequest pos */
+    pos: IPosition;
+
+    /** PaintRequest size */
+    size: number;
+
+    /** PaintRequest color */
+    color: number;
+}
+
+/** Represents a PaintRequest. */
+export class PaintRequest {
+
+    /**
+     * Constructs a new PaintRequest.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IPaintRequest);
+
+    /** PaintRequest pos. */
+    public pos: IPosition;
+
+    /** PaintRequest size. */
+    public size: number;
+
+    /** PaintRequest color. */
+    public color: number;
+
+    /**
+     * Creates a new PaintRequest instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns PaintRequest instance
+     */
+    public static create(properties?: IPaintRequest): PaintRequest;
+
+    /**
+     * Encodes the specified PaintRequest message. Does not implicitly {@link PaintRequest.verify|verify} messages.
+     * @param message PaintRequest message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IPaintRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified PaintRequest message, length delimited. Does not implicitly {@link PaintRequest.verify|verify} messages.
+     * @param message PaintRequest message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IPaintRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a PaintRequest message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns PaintRequest
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): PaintRequest;
+
+    /**
+     * Decodes a PaintRequest message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns PaintRequest
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): PaintRequest;
+
+    /**
+     * Verifies a PaintRequest message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a PaintRequest message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns PaintRequest
+     */
+    public static fromObject(object: { [k: string]: any }): PaintRequest;
+
+    /**
+     * Creates a plain object from a PaintRequest message. Also converts values to other types if specified.
+     * @param message PaintRequest
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: PaintRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this PaintRequest to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
+/** Properties of a PaintResponse. */
+export interface IPaintResponse {
+
+    /** PaintResponse timestamp */
+    timestamp: number;
+}
+
+/** Represents a PaintResponse. */
+export class PaintResponse {
+
+    /**
+     * Constructs a new PaintResponse.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IPaintResponse);
+
+    /** PaintResponse timestamp. */
+    public timestamp: number;
+
+    /**
+     * Creates a new PaintResponse instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns PaintResponse instance
+     */
+    public static create(properties?: IPaintResponse): PaintResponse;
+
+    /**
+     * Encodes the specified PaintResponse message. Does not implicitly {@link PaintResponse.verify|verify} messages.
+     * @param message PaintResponse message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IPaintResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified PaintResponse message, length delimited. Does not implicitly {@link PaintResponse.verify|verify} messages.
+     * @param message PaintResponse message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IPaintResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a PaintResponse message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns PaintResponse
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): PaintResponse;
+
+    /**
+     * Decodes a PaintResponse message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns PaintResponse
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): PaintResponse;
+
+    /**
+     * Verifies a PaintResponse message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a PaintResponse message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns PaintResponse
+     */
+    public static fromObject(object: { [k: string]: any }): PaintResponse;
+
+    /**
+     * Creates a plain object from a PaintResponse message. Also converts values to other types if specified.
+     * @param message PaintResponse
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: PaintResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this PaintResponse to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
 /** Properties of a PaintEvent. */
 export interface IPaintEvent {
 
@@ -257,6 +365,9 @@ export interface IPaintEvent {
 
     /** PaintEvent color */
     color: number;
+
+    /** PaintEvent timestamp */
+    timestamp: number;
 }
 
 /** Represents a PaintEvent. */
@@ -276,6 +387,9 @@ export class PaintEvent {
 
     /** PaintEvent color. */
     public color: number;
+
+    /** PaintEvent timestamp. */
+    public timestamp: number;
 
     /**
      * Creates a new PaintEvent instance using the specified properties.
@@ -352,7 +466,10 @@ export class PaintEvent {
 export interface IStatusEvent {
 
     /** StatusEvent users */
-    users: number;
+    users?: number;
+
+    /** StatusEvent layer */
+    layer?: string;
 }
 
 /** Represents a StatusEvent. */
@@ -366,6 +483,9 @@ export class StatusEvent {
 
     /** StatusEvent users. */
     public users: number;
+
+    /** StatusEvent layer. */
+    public layer: string;
 
     /**
      * Creates a new StatusEvent instance using the specified properties.
@@ -449,9 +569,6 @@ export interface ICanvasRequest {
 
     /** CanvasRequest height */
     height: number;
-
-    /** CanvasRequest encoding */
-    encoding: CanvasRequest.Encoding;
 }
 
 /** Represents a CanvasRequest. */
@@ -471,9 +588,6 @@ export class CanvasRequest {
 
     /** CanvasRequest height. */
     public height: number;
-
-    /** CanvasRequest encoding. */
-    public encoding: CanvasRequest.Encoding;
 
     /**
      * Creates a new CanvasRequest instance using the specified properties.
@@ -546,18 +660,11 @@ export class CanvasRequest {
     public toJSON(): { [k: string]: any };
 }
 
-export namespace CanvasRequest {
-
-    /** Encoding enum. */
-    enum Encoding {
-        PNG = 1,
-        JPEG = 2,
-        WEBP = 3
-    }
-}
-
 /** Properties of a CanvasResponse. */
 export interface ICanvasResponse {
+
+    /** CanvasResponse timestamp */
+    timestamp: number;
 
     /** CanvasResponse image */
     image: Uint8Array;
@@ -571,6 +678,9 @@ export class CanvasResponse {
      * @param [properties] Properties to set
      */
     constructor(properties?: ICanvasResponse);
+
+    /** CanvasResponse timestamp. */
+    public timestamp: number;
 
     /** CanvasResponse image. */
     public image: Uint8Array;
@@ -641,6 +751,96 @@ export class CanvasResponse {
 
     /**
      * Converts this CanvasResponse to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
+/** Properties of a CanvasEvent. */
+export interface ICanvasEvent {
+
+    /** CanvasEvent timestamp */
+    timestamp: number;
+}
+
+/** Represents a CanvasEvent. */
+export class CanvasEvent {
+
+    /**
+     * Constructs a new CanvasEvent.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: ICanvasEvent);
+
+    /** CanvasEvent timestamp. */
+    public timestamp: number;
+
+    /**
+     * Creates a new CanvasEvent instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns CanvasEvent instance
+     */
+    public static create(properties?: ICanvasEvent): CanvasEvent;
+
+    /**
+     * Encodes the specified CanvasEvent message. Does not implicitly {@link CanvasEvent.verify|verify} messages.
+     * @param message CanvasEvent message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: ICanvasEvent, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified CanvasEvent message, length delimited. Does not implicitly {@link CanvasEvent.verify|verify} messages.
+     * @param message CanvasEvent message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: ICanvasEvent, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a CanvasEvent message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns CanvasEvent
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): CanvasEvent;
+
+    /**
+     * Decodes a CanvasEvent message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns CanvasEvent
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): CanvasEvent;
+
+    /**
+     * Verifies a CanvasEvent message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a CanvasEvent message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns CanvasEvent
+     */
+    public static fromObject(object: { [k: string]: any }): CanvasEvent;
+
+    /**
+     * Creates a plain object from a CanvasEvent message. Also converts values to other types if specified.
+     * @param message CanvasEvent
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: CanvasEvent, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this CanvasEvent to JSON.
      * @returns JSON object
      */
     public toJSON(): { [k: string]: any };

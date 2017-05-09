@@ -5,22 +5,114 @@ import * as Canvas from 'canvas'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as sharp from 'sharp'
+import {spawn} from 'child_process'
+import {PassThrough} from 'stream'
+import * as moment from 'moment'
 
-import {PaintEvent, StatusEvent, CanvasRequest} from './../protocol/service'
+
+import * as grpc from 'grpc'
+
+import {PaintEvent, StatusEvent, CanvasRequest, CanvasEvent, PaintRequest} from './../protocol/service'
 import * as shared from './../shared/paint'
+
+const {env} = process
+
+const styles = [
+    {layer: 'autostripe mixed3a_5x5', channel: 9},
+    {layer: 'conv2d0_pre_relu', channel: 26},
+    {layer: 'conv2d1', channel: 42},
+    {layer: 'conv2d1_pre_relu', channel: 4242},
+    {layer: 'eyes mixed4e_5x5_bottleneck_pre_relu', channel: 27},
+    {layer: 'head0_bottleneck', channel: 6},
+    {layer: 'head1_bottleneck_pre_relu', channel: 4242},
+    {layer: 'land mixed4d_3x3', channel: 63},
+    {layer: 'mixed3a', channel: 120},
+    {layer: 'mixed3a', channel: 43},
+    {layer: 'mixed3a_3x3', channel: 77},
+    {layer: 'mixed3a_3x3_pre_relu', channel: 4242},
+    {layer: 'mixed3a_5x5', channel: 20},
+    {layer: 'mixed3a_5x5_bottleneck_pre_relu', channel: 2}, // swirly things, muted colors
+    {layer: 'mixed3b', channel: 4242},
+    {layer: 'mixed3b_1x1_pre_relu', channel: 65},
+    {layer: 'mixed3b_5x5_pre_relu', channel: 10},
+    {layer: 'mixed4a_pool', channel: 192},
+    {layer: 'mixed4a_pool', channel: 280},
+    {layer: 'mixed4a_pool_reduce', channel: 4242},
+    {layer: 'mixed4a_pool_reduce', channel: 8},
+    {layer: 'mixed4b_1x1', channel: 37},
+    {layer: 'mixed4b_1x1', channel: 46},
+    {layer: 'mixed4b_3x3_bottleneck', channel: 22},
+    {layer: 'mixed4b_pool', channel: 4242},
+    {layer: 'mixed4c_1x1_pre_relu', channel: 4242},
+    {layer: 'mixed4c_pool_reduce', channel: 61},
+    {layer: 'mixed4d_3x3_bottleneck_pre_relu', channel: 139}, // flowers
+    {layer: 'mixed4d_5x5_bottleneck', channel: 31},
+    {layer: 'mixed4d_5x5_bottleneck', channel: 4242},
+    {layer: 'mixed4d_pool_reduce_pre_relu', channel: 5},
+    {layer: 'mixed4e', channel: 101},
+    {layer: 'mixed4e', channel: 255},
+    {layer: 'mixed4e', channel: 4242},
+    {layer: 'mixed4e', channel: 528},
+    {layer: 'mixed4e_3x3_bottleneck_pre_relu', channel: 46},
+    {layer: 'mixed4e_3x3_bottleneck_pre_relu', channel: 68},
+    {layer: 'mixed4e_5x5_bottleneck', channel: 1},
+    {layer: 'mixed4e_pool_reduce_pre_relu', channel: 120}, // pipe eyes
+    {layer: 'mixed4e_pool_reduce_pre_relu', channel: 40}, // blotchy snakes
+    {layer: 'mixed4e_pool_reduce_pre_relu', channel: 41}, // blotchy snakes
+    {layer: 'mixed5a_3x3', channel: 93},
+    {layer: 'mixed5a_5x5_bottleneck_pre_relu', channel: 37},
+    {layer: 'mixed5b', channel: 4242},
+    {layer: 'mixed5b_1x1_pre_relu', channel: 4242},
+    {layer: 'mixed5b_pool_reduce_pre_relu', channel: 100}, // birds and random stuff
+    {layer: 'mixed5b_pool_reduce_pre_relu', channel: 140}, // parrot mess
+    {layer: 'mixed5b_pool_reduce_pre_relu', channel: 1}, // monkey things
+    {layer: 'patterns mixed3a_3x3', channel: 4242},
+]
+
+let dreamStyle = env['START_STYLE'] ? styles[parseInt(env['START_STYLE'])] : styles[~~(Math.random() * styles.length)]
+const dreamInterval = env['DREAM_INTEVAL'] ? parseInt(env['DREAM_INTEVAL']) : 10 * 1000
+const styleInterval = env['STYLE_INTEVAL'] ? parseInt(env['DREAM_INTEVAL']) : 60 * 1000 * 3
+
+console.log(`dream interval ${ dreamInterval }, style change interval ${ styleInterval }`)
+
+const layers = require('./layers.json')
+function randomStyle(): {layer: string, channel: number} {
+    const layer = layers[Math.floor(Math.random()*layers.length)]
+    return {layer: layer[0], channel: Math.floor(Math.random() * layer[1])}
+}
+process.on('SIGHUP', () => {
+    dreamStyle = randomStyle()
+    console.log('changed style to', dreamStyle)
+    broadcastStatus()
+})
+setInterval(() => {
+    const idx = Math.floor(Math.random() * styles.length)
+    dreamStyle = styles[idx]
+    broadcastStatus()
+}, styleInterval)
+
+const dreamProto = grpc.load(path.join(__dirname, '../protocol/dream.proto'))
+const dreamClient = new dreamProto.Dreamer('localhost:50051', grpc.credentials.createInsecure(),
+    {'grpc.max_send_message_length': 70105240, 'grpc.max_receive_message_length': 70105240})
 
 const proto = protobuf.loadSync(`${ __dirname }/../protocol/service.proto`)
 
-const canvas = new Canvas(shared.canvasWidth, shared.canvasHeight)
-const ctx = canvas.getContext('2d')
-ctx.patternQuality = 'fast'
-ctx.filter = 'fast'
-ctx.antialias = 'none'
+const dreamCanvas = new Canvas(shared.canvasWidth, shared.canvasHeight)
+const drawCanvas = new Canvas(shared.canvasWidth, shared.canvasHeight)
+const workCanvas = new Canvas(shared.canvasWidth, shared.canvasHeight)
+
+const dreamCtx = dreamCanvas.getContext('2d')
+const drawCtx = drawCanvas.getContext('2d')
+const workCtx = workCanvas.getContext('2d')
+
+workCtx.patternQuality = dreamCtx.patternQuality = drawCtx.patternQuality = 'fast'
+workCtx.filter = dreamCtx.filter = drawCtx.filter = 'fast'
+workCtx.antialias = dreamCtx.antialias = drawCtx.antialias = 'none'
 
 try {
     const img = new Canvas.Image()
     img.src = fs.readFileSync('canvas.jpeg')
-    ctx.drawImage(img, 0, 0)
+    dreamCtx.drawImage(img, 0, 0)
 } catch (error) {
     if (error.code !== 'ENOENT') {
         throw error
@@ -30,7 +122,9 @@ try {
 async function saveCanvas() {
     const width = shared.canvasWidth
     const height = shared.canvasHeight
-    const imageData = ctx.getImageData(0, 0, width, height)
+    workCtx.drawImage(dreamCanvas, 0, 0)
+    workCtx.drawImage(drawCanvas, 0, 0)
+    const imageData = workCtx.getImageData(0, 0, width, height)
     const imageBuffer = Buffer.from(imageData.data.buffer)
     await sharp(imageBuffer, {raw: {channels: 4, width, height}})
         .background('#ffffff').flatten()
@@ -45,39 +139,89 @@ process.on('SIGINT', async () => {
     process.exit()
 })
 
-let canvasDirty = false
-if (process.env['SAVE_INTERVAL'] && process.env['SAVE_DIR']) {
-    const interval = parseInt(process.env['SAVE_INTERVAL'])
-    const dir = process.env['SAVE_DIR']
-    console.log(`saving canvas to ${ dir } every ${ interval } seconds`)
-    const save = async () => {
-        if (!canvasDirty) {
-            return
-        }
-        const filename = path.join(dir, `canvas-${ new Date().toISOString() }.jpeg`)
-        console.log(`saving canvas to ${ filename }`)
-        await saveCanvas()
-        fs.createReadStream('canvas.jpeg').pipe(fs.createWriteStream(filename));
-        canvasDirty = false
-    }
-    setInterval(save, interval * 1000)
-}
-
-const server = new wsrpc.Server(proto.lookupService('Painter'), {
+const server = new wsrpc.Server(proto.lookupService('DreamPainter'), {
     port: 4242
 })
 
-server.implement('paint', async (event: PaintEvent, sender) => {
-    shared.paint(event, ctx)
-    canvasDirty = true
-    const broadcast = PaintEvent.encode(event).finish()
+async function dreamImage(image: sharp.SharpInstance): Promise<Buffer> {
+    const imageBuffer = await image
+        .background('#ffffff').flatten()
+        .jpeg({quality: 90, chromaSubsampling: '4:4:4'})
+        .toBuffer()
+    return new Promise<Buffer>((resolve, reject) => {
+        const {layer, channel} = dreamStyle
+        dreamClient.dream({image: imageBuffer, layer, channel}, (error, result) => {
+            if (error) { reject(error) } else {
+                resolve(result.image)
+                if (process.env['SAVE_DIR']) {
+                    const date = moment().format('YYYYMMDD-HHmmSS')
+                    const filename = path.join(process.env['SAVE_DIR'], `canvas-${ date }.png`)
+                    console.log(`saving canvas to ${ filename }`)
+                    fs.writeFile(filename, result.image, (error) => {
+                        if (error) {
+                            console.warn('error saving canvas', error)
+                        }
+                    })
+                }
+            }
+        })
+
+    })
+}
+
+async function dream() {
+    const width = shared.canvasWidth
+    const height = shared.canvasHeight
+
+    // flush draw buffer
+    const timestamp = Date.now()
+    dreamCtx.globalAlpha = workCtx.globalAlpha = drawCtx.globalAlpha = 1.0
+    dreamCtx.drawImage(drawCanvas, 0, 0)
+    drawCtx.clearRect(0, 0, width, height)
+
+    const imageData = dreamCtx.getImageData(0, 0, width, height)
+    const imageBuffer = Buffer.from(imageData.data.buffer)
+    const image = sharp(imageBuffer, {raw: {channels: 4, width, height}})
+
+    const resultBuffer = await dreamImage(image)
+    const result = new Canvas.Image()
+    result.src = resultBuffer
+    dreamCtx.drawImage(result, 0, 0)
+
+    return timestamp
+}
+
+function dreamLoop() {
+    dream().then((timestamp) => {
+        broadcastCanvas(timestamp)
+        const dt = Date.now() - timestamp
+        console.log('dream took', dt / 1000)
+        if (dt > dreamInterval) {
+            console.warn('missed dream interval target', (dt - dreamInterval)/1000)
+            setImmediate(dreamLoop)
+        } else {
+            setTimeout(dreamLoop, dreamInterval - dt)
+        }
+    }).catch((error) => {
+        console.log('dream failed', error.message)
+        dreamStyle = randomStyle()
+        setTimeout(dreamLoop, 500)
+    })
+}
+dreamLoop()
+
+server.implement('paint', async (request: PaintRequest, sender) => {
+    shared.paint(request, drawCtx)
+    const timestamp = Date.now()
+    const {color, pos, size} = request
+    const broadcast = PaintEvent.encode({color, pos, size, timestamp}).finish()
     for (const connection of server.connections) {
         if (connection === sender) {
             continue
         }
         connection.send('paint', broadcast)
     }
-    return {}
+    return {timestamp}
 })
 
 server.implement('getCanvas', async (request: CanvasRequest) => {
@@ -87,29 +231,32 @@ server.implement('getCanvas', async (request: CanvasRequest) => {
         offset.y + height > shared.canvasHeight) {
         throw new Error('Out of bounds')
     }
-    const imageData = ctx.getImageData(offset.x, offset.y, width, height)
+    dreamCtx.globalAlpha = workCtx.globalAlpha = drawCtx.globalAlpha = 1.0
+    const timestamp = Date.now()
+    workCtx.drawImage(dreamCanvas, 0, 0)
+    workCtx.drawImage(drawCanvas, 0, 0)
+    const imageData = workCtx.getImageData(offset.x, offset.y, width, height)
     const imageBuffer = Buffer.from(imageData.data.buffer)
     const image = sharp(imageBuffer, {raw: {width, height, channels: 4}})
-    let responseImage: Buffer
-    switch (request.encoding) {
-        case CanvasRequest.Encoding.JPEG:
-            responseImage = await image
-                .background('#ffffff').flatten().jpeg().toBuffer()
-            break
-        case CanvasRequest.Encoding.WEBP:
-            responseImage = await image.webp().toBuffer()
-            break
-        case CanvasRequest.Encoding.PNG:
-            responseImage = await image.png().toBuffer()
-            break
-        default:
-            throw new Error('Invalid encoding')
-    }
-    return {image: responseImage}
+    const responseImage = await image.background('#ffffff').flatten().jpeg().toBuffer()
+    return {image: responseImage, timestamp}
 })
 
+const broadcastCanvas = (timestamp: number) => {
+    const data = CanvasEvent.encode({timestamp}).finish()
+    server.broadcast('canvas', data)
+}
+
 const broadcastStatus = () => {
-    const data = StatusEvent.encode({users: server.connections.length}).finish()
+    let {layer, channel} = dreamStyle
+    if (channel === 4242) {
+        layer += '^2'
+    } else {
+        layer += `:${ channel }`
+    }
+    const data = StatusEvent.encode({
+        users: server.connections.length, layer
+    }).finish()
     server.broadcast('status', data)
 }
 
@@ -123,5 +270,5 @@ server.on('error', (error) => {
 })
 
 server.on('listening', () => {
-    console.log(`listening on ${ server.options.port }`)
+    console.log(`listening on ${ server.options.port }, pid ${ process.pid }`)
 })

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-service DreamPaint {
+service DreamPainter {
     rpc GetCanvas (CanvasRequest) returns (CanvasResponse) {}
     rpc Paint (PaintRequest) returns (PaintResponse) {}
 }
@@ -10,7 +10,6 @@ message Position {
     required int32 y = 2;
 }
 
-//
 message PaintRequest {
     required Position pos = 1;
     required uint32 size = 2;
@@ -21,7 +20,6 @@ message PaintResponse {
     required uint32 timestamp = 1;
 }
 
-// Broadcasted to all but paint requester.
 message PaintEvent {
     required Position pos = 1;
     required uint32 size = 2;
@@ -30,23 +28,21 @@ message PaintEvent {
 }
 
 message StatusEvent {
-    required uint32 users = 1;
+    uint32 users = 1;
+    string layer = 2;
 }
 
-// Se
 message CanvasRequest {
     required Position offset = 1;
     required uint32 width = 2;
     required uint32 height = 3;
 }
 
-// Canvas response containing JPEG encoded data of requested region.
 message CanvasResponse {
-    required uint32 timestamp = 1; // containing paint up to this
+    required uint32 timestamp = 1;
     required bytes image = 2;
 }
 
-// Broadcasted by server when new canvas is available.
 message CanvasEvent {
     required uint32 timestamp = 1;
 }

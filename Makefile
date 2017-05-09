@@ -2,9 +2,25 @@
 SHELL := /bin/bash
 PATH  := ./node_modules/.bin:$(PATH)
 
+.PHONY: server
+server: node_modules protocol/service.d.ts .node-virtualenv
+	ts-node server/server.ts
+
+.PHONY: dreamer
+dreamer: model
+	python3 -u dreamer/server.py
+
 .PHONY: preview
-preview: node_modules protocol/service.d.ts protocol/service.js
+preview: node_modules protocol/service.d.ts
 	wintersmith preview --chdir client
+
+.node-virtualenv:
+	virtualenv-postinstall
+
+model:
+	wget https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip
+	unzip -d model inception5h.zip
+	rm inception5h.zip
 
 protocol/service.js: node_modules protocol/service.proto
 	pbjs -t static-module -w commonjs protocol/service.proto -o protocol/service.js

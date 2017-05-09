@@ -1,9 +1,9 @@
-import {IPaintEvent} from './../protocol/service'
+import {IPaintRequest} from './../protocol/service'
 const Canvas = require('canvas')
 import * as LRUCache from 'lru-cache'
 
-export const canvasWidth = process.env['CANVAS_WIDTH'] ? parseInt(process.env['CANVAS_WIDTH']) : 4096
-export const canvasHeight = process.env['CANVAS_HEIGHT'] ? parseInt(process.env['CANVAS_HEIGHT']) :4096
+export const canvasWidth = 1024
+export const canvasHeight = 1024
 export const brushSize = 124
 
 const brushCache = LRUCache<HTMLCanvasElement>({max: 20})
@@ -55,7 +55,7 @@ function getBrush(color: number):HTMLCanvasElement {
     return brush
 }
 
-export function paint(event: IPaintEvent, ctx: CanvasRenderingContext2D) {
+export function paint(event: IPaintRequest, ctx: CanvasRenderingContext2D) {
     ctx.globalAlpha = 0.4
     ctx.globalCompositeOperation = 'source-over'
 
