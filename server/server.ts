@@ -64,13 +64,13 @@ const styles = [
     {layer: 'mixed5b_1x1_pre_relu', channel: 4242},
     {layer: 'mixed5b_pool_reduce_pre_relu', channel: 100}, // birds and random stuff
     {layer: 'mixed5b_pool_reduce_pre_relu', channel: 140}, // parrot mess
-    {layer: 'mixed5b_pool_reduce_pre_relu', channel: 1}, // monkey things
+    // {layer: 'mixed5b_pool_reduce_pre_relu', channel: 1}, // monkey things - to messy
     {layer: 'patterns mixed3a_3x3', channel: 4242},
 ]
 
 let dreamStyle = env['START_STYLE'] ? styles[parseInt(env['START_STYLE'])] : styles[~~(Math.random() * styles.length)]
-const dreamInterval = env['DREAM_INTEVAL'] ? parseInt(env['DREAM_INTEVAL']) : 10 * 1000
-const styleInterval = env['STYLE_INTEVAL'] ? parseInt(env['DREAM_INTEVAL']) : 60 * 1000 * 3
+const dreamInterval = env['DREAM_INTEVAL'] ? parseInt(env['DREAM_INTEVAL']) : 30 * 1000
+const styleInterval = env['STYLE_INTEVAL'] ? parseInt(env['STYLE_INTERVAL']) : 60 * 1000 * 10
 
 console.log(`dream interval ${ dreamInterval }, style change interval ${ styleInterval }`)
 
