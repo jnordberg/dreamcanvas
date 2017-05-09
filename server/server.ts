@@ -1,14 +1,13 @@
 import * as wsrpc from 'wsrpc'
 import * as protobuf from 'protobufjs'
 import * as zlib from 'zlib'
-import * as Canvas from 'canvas'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as sharp from 'sharp'
 import {spawn} from 'child_process'
 import {PassThrough} from 'stream'
 import * as moment from 'moment'
-
+import * as Canvas from 'canvas'
 
 import * as grpc from 'grpc'
 

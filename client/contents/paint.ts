@@ -49,7 +49,7 @@ function toHex(d: number): string {
 const now = window.performance ? () => window.performance.now() : () => Date.now()
 const day = () => Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 2))
 
-const client = new Client('ws://lawnmower.local:4242', proto.DreamPainter, {
+const client = new Client('ws://dream.almost.digital:4242', proto.DreamPainter, {
     sendTimeout: 5 * 60 * 1000,
     eventTypes: {
         paint: proto.PaintEvent,

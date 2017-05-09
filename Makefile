@@ -3,7 +3,7 @@ SHELL := /bin/bash
 PATH  := ./node_modules/.bin:$(PATH)
 
 .PHONY: server
-server: node_modules protocol/service.d.ts .node-virtualenv
+server: node_modules protocol/service.d.ts
 	ts-node server/server.ts
 
 .PHONY: dreamer
@@ -13,9 +13,6 @@ dreamer: model
 .PHONY: preview
 preview: node_modules protocol/service.d.ts
 	wintersmith preview --chdir client
-
-.node-virtualenv:
-	virtualenv-postinstall
 
 model:
 	wget https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip
