@@ -1,4 +1,7 @@
 {
+  "locals": {
+    "release": "1"
+  },
   "browserify": {
     "watchify": false,
     "extensions": [".js", ".ts"],
