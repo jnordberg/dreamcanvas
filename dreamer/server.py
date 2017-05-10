@@ -10,12 +10,17 @@ class Dreamer(dream_pb2_grpc.DreamerServicer):
 
     def Dream(self, request, context):
         import dream
+        start_time = time.perf_counter()
         print('dream %s %d' % (request.layer, request.channel))
         img = Image.open(BytesIO(request.image))
-        result = dream.render(img, layer=request.layer, channel=request.channel, iter_n=2, octave_n=6, octave_scale=1.31415)
+        result = dream.render(img, layer=request.layer, channel=request.channel, iter_n=1, octave_n=6, octave_scale=1.31415)
+        dream_time = time.perf_counter() - start_time
         buffer = BytesIO()
         result.save(buffer, 'png')
-        return dream_pb2.DreamResponse(image=buffer.getvalue())
+        rv = dream_pb2.DreamResponse(image=buffer.getvalue())
+        request_time = time.perf_counter() - start_time
+        print('done, dream %f total %f' % (dream_time, request_time))
+        return rv
 
 def serve():
     server = grpc.server(

@@ -1,6 +1,21 @@
+
+import * as Raven from 'raven-js'
+if (global['__raven_url']) {
+    Raven.config(global['__raven_url'], {
+        release: global['__release']
+    }).install()
+}
+
+window['Promise'] = require('es6-promise-polyfill').Promise
+
 import {Client} from 'wsrpc'
-import * as proto from './../../protocol/service'
-import * as shared from './../../shared/paint'
+import * as proto from './../../../protocol/service'
+import * as shared from './../../../shared/paint'
+import Dialog from './dialog'
+import * as Cookie from 'js-cookie'
+
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+const serverUrl = global['__server_url'] || 'ws://localhost:8080'
 
 interface DrawPosition {
     x: number
@@ -17,27 +32,25 @@ interface DrawEvent {
 }
 
 const palettes = [
-
-    [
-        0x000000, 0x808080, 0xffffff,
-        0xff0000, 0xff8000, 0xffff00, 0x80ff00, 0x00ff00, 0x00ff80, 0x0080ff, 0x0000ff, 0x8000ff, 0xff00ff
-    ],
-    [0x000000, 0x808080, 0xffffff, 0x00A8C6, 0x40C0CB, 0xF9F2E7, 0xAEE239, 0x8FBE00],
-    [0x000000, 0x808080, 0xffffff, 0x467588, 0xFCE5BC, 0xFDCD92, 0xFCAC96, 0xDD8193],
-    [0x000000, 0x808080, 0xffffff, 0xF8B195, 0xF67280, 0xC06C84, 0x6C5B7B, 0x355C7D],
-    [0x000000, 0x808080, 0xffffff, 0xCFF09E, 0xA8DBA8, 0x79BD9A, 0x3B8686, 0x0B486B],
-    [0x000000, 0x808080, 0xffffff, 0xEEE6AB, 0xC5BC8E, 0x696758, 0x45484B, 0x36393B],
-    [0x000000, 0x808080, 0xffffff, 0xFFED90, 0xA8D46F, 0x359668, 0x3C3251, 0x341139],
-    [0x000000, 0x808080, 0xffffff, 0x351330, 0x424254, 0x64908A, 0xE8CAA4, 0xCC2A41],
-    [0x000000, 0x808080, 0xffffff, 0xD9CEB2, 0x948C75, 0xD5DED9, 0x7A6A53, 0x99B2B7],
-    [0x000000, 0x808080, 0xffffff, 0x00A0B0, 0x6A4A3C, 0xCC333F, 0xEB6841, 0xEDC951],
-    [0x000000, 0x808080, 0xffffff, 0xFF4E50, 0xFC913A, 0xF9D423, 0xEDE574, 0xE1F5C4],
-    [0x000000, 0x808080, 0xffffff, 0xE94E77, 0xD68189, 0xC6A49A, 0xC6E5D9, 0xF4EAD5],
-    [0x000000, 0x808080, 0xffffff, 0xE8DDCB, 0xCDB380, 0x036564, 0x033649, 0x031634],
-    [0x000000, 0x808080, 0xffffff, 0x69D2E7, 0xA7DBD8, 0xE0E4CC, 0xF38630, 0xFA6900],
-    [0x000000, 0x808080, 0xffffff, 0x490A3D, 0xBD1550, 0xE97F02, 0xF8CA00, 0x8A9B0F],
-    [0x000000, 0x808080, 0xffffff, 0x8C2318, 0x5E8C6A, 0x88A65E, 0xBFB35A, 0xF2C45A],
-    [0x000000, 0x808080, 0xffffff, 0xEFFFCD, 0xDCE9BE, 0x555152, 0x2E2633, 0x99173C],
+    //[0x000000, 0xffffff, -1, 0xff0000, 0xff8000, 0xffff00, 0x00ff00, 0x0080ff, 0x0000ff, 0x8000ff, 0xff00ff],
+    [0x000000, 0xffffff, -1, 0x00A8C6, 0x40C0CB, 0xF9F2E7, 0xAEE239, 0x8FBE00],
+    [0x000000, 0xffffff, -1, 0x467588, 0xFCE5BC, 0xFDCD92, 0xFCAC96, 0xDD8193],
+    [0x000000, 0xffffff, -1, 0xF8B195, 0xF67280, 0xC06C84, 0x6C5B7B, 0x355C7D],
+    [0x000000, 0xffffff, -1, 0xCFF09E, 0xA8DBA8, 0x79BD9A, 0x3B8686, 0x0B486B],
+    [0x000000, 0xffffff, -1, 0xEEE6AB, 0xC5BC8E, 0x696758, 0x45484B, 0x36393B],
+    [0x000000, 0xffffff, -1, 0xFFED90, 0xA8D46F, 0x359668, 0x3C3251, 0x341139],
+    [0x000000, 0xffffff, -1, 0x351330, 0x424254, 0x64908A, 0xE8CAA4, 0xCC2A41],
+    [0x000000, 0xffffff, -1, 0xD9CEB2, 0x948C75, 0xD5DED9, 0x7A6A53, 0x99B2B7],
+    [0x000000, 0xffffff, -1, 0x00A0B0, 0x6A4A3C, 0xCC333F, 0xEB6841, 0xEDC951],
+    [0x000000, 0xffffff, -1, 0xFF4E50, 0xFC913A, 0xF9D423, 0xEDE574, 0xE1F5C4],
+    [0x000000, 0xffffff, -1, 0xE94E77, 0xD68189, 0xC6A49A, 0xC6E5D9, 0xF4EAD5],
+    [0x000000, 0xffffff, -1, 0xE8DDCB, 0xCDB380, 0x036564, 0x033649, 0x031634],
+    [0x000000, 0xffffff, -1, 0x69D2E7, 0xA7DBD8, 0xE0E4CC, 0xF38630, 0xFA6900],
+    [0x000000, 0xffffff, -1, 0x490A3D, 0xBD1550, 0xE97F02, 0xF8CA00, 0x8A9B0F],
+    [0x000000, 0xffffff, -1, 0x8C2318, 0x5E8C6A, 0x88A65E, 0xBFB35A, 0xF2C45A],
+    [0x000000, 0xffffff, -1, 0xEFFFCD, 0xDCE9BE, 0x555152, 0x2E2633, 0x99173C],
+    [0x000000, 0xffffff, -1, 0x607848, 0x789048, 0xC0D860, 0xF0F0D8, 0x604848],
+    [0x000000, 0xffffff, -1, 0x556270, 0x4ECDC4, 0xC7F464, 0xFF6B6B, 0xC44D58],
 ]
 
 function toHex(d: number): string {
@@ -49,7 +62,7 @@ function toHex(d: number): string {
 const now = window.performance ? () => window.performance.now() : () => Date.now()
 const day = () => Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 2))
 
-const client = new Client('ws://dream.almost.digital:4242', proto.DreamPainter, {
+const client = new Client(serverUrl, proto.DreamPainter, {
     sendTimeout: 5 * 60 * 1000,
     eventTypes: {
         paint: proto.PaintEvent,
@@ -66,7 +79,31 @@ client.on('close', () => {
     document.documentElement.classList.remove('connected')
 })
 
-window.addEventListener('DOMContentLoaded', async () => {
+export default async function main() {
+    if (!Cookie.get('experienced-painter')) {
+        const dialog = new Dialog(window)
+        let html = `<p>
+            This is a collaborative space, be respectful and patient with the
+            Artificial Intelligence and the other Humans drawing.
+        </p>`
+        if (isMobile) {
+            html += `<p>
+                Select colors by tapping them in the palette to the left.
+                To move around hold the cross in the corner with one finger and drag the canvas with another.
+            </p>`
+        } else {
+            html += `<p>
+                Select colors by clicking them in the lower left corner.
+                Pan around by holding spacebar and dragging the canvas.
+            </p>`
+        }
+        dialog.show({
+            title: 'Welcome to DreamCanvas!', html, button: 'Okay'
+        }).then(() => {
+            Cookie.set('experienced-painter', 'yep', {expires: 365})
+        })
+    }
+
     const status = document.createElement('div')
     status.className = 'status'
     status.innerHTML = 'Connecting...'
@@ -94,9 +131,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     colorPicker.className = 'picker'
     for (const color of colors) {
         const well = document.createElement('span')
-        const cssColor = toHex(color)
-        well.style.backgroundColor = cssColor
-        well.style.outlineColor = cssColor
+        if (color === -1) {
+            well.classList.add('magic')
+        } else {
+            const cssColor = toHex(color)
+            well.style.backgroundColor = cssColor
+            well.style.outlineColor = cssColor
+        }
         well.addEventListener('click', (event) => {
             event.preventDefault()
             colorWells.forEach((el) => el.classList.remove('active'))
@@ -145,7 +186,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         }, ctx)
     }
     client.on('event paint', (event: proto.PaintEvent) => {
-        console.log(event.timestamp)
         if (event.timestamp >= canvasTimestamp) {
             drawBuffer.push(event)
             offsetPaint(event)
@@ -203,7 +243,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
 
         ctx.fillRect(0, 0, canvas.width, canvas.height)
-        ctx.putImageData(panData, dx, dy)
+        ctx.putImageData(panData, Math.floor(dx), Math.floor(dy))
     }
 
     const panEnd = () => {
@@ -346,20 +386,30 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     client.on('open', fetchCanvas)
 
+    let forceChanged = false
+    let forceLast: number|undefined
+
     const vF = 0.5
     const vMax = 8
     async function drawAsync(event: DrawEvent) {
         let msgs: proto.IPaintRequest[] = []
-        let size = 15// * pixelRatio
+        let size = 11// * pixelRatio
         const color = event.color
-        if (event.force) {
+        if (!forceChanged && event.force) {
+            if (forceLast !== undefined) {
+                forceChanged = event.force !== forceLast
+            }
+            forceLast = event.force
+        }
+        let hasForce = event.force && forceChanged
+        if (hasForce) {
             size = Math.min(size + event.force * shared.brushSize, shared.brushSize)
         }
         if (event.lastPos) {
             const dx = event.lastPos.x - event.pos.x
             const dy = event.lastPos.y - event.pos.y
             const d = Math.sqrt(dx*dx + dy*dy)
-            if (!event.force && event.pos.timestamp !== event.lastPos.timestamp) {
+            if (!hasForce && event.pos.timestamp !== event.lastPos.timestamp) {
                 const dt = event.pos.timestamp - event.lastPos.timestamp
                 let v = Math.min(d / dt, vMax)
                 if (event.lastV) {
@@ -410,16 +460,19 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     let mouseDraw: DrawEvent|undefined
 
+    function pickColor(x, y): number {
+        const {data} = ctx.getImageData(x, y, 1, 1)
+        return ((data[0]&0x0ff)<<16)|((data[1]&0x0ff)<<8)|(data[2]&0x0ff)
+    }
+
     canvas.addEventListener('mousedown', (event) => {
         event.preventDefault()
         if (isPanning) { return }
+        const x = event.x * pixelRatio
+        const y = event.y * pixelRatio
+        const color = activeColor === -1 ? pickColor(x, y) : activeColor
         mouseDraw = {
-            pos: {
-                x: event.x * pixelRatio,
-                y: event.y * pixelRatio,
-                timestamp: event.timeStamp || now(),
-            },
-            color: activeColor,
+            pos: {x, y, timestamp: event.timeStamp || now()}, color
         }
         draw(mouseDraw)
     })
@@ -455,7 +508,6 @@ window.addEventListener('DOMContentLoaded', async () => {
                     const touch = event.touches[i]
                     if (touch.target === panHandle) { continue }
                     panTouch = touch.identifier
-                    console.log('tracking', panTouch)
                     panStart({x: touch.screenX, y: touch.screenY})
                     break
                 }
@@ -464,14 +516,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
         for (var i = 0; i < event.touches.length; i++) {
             const touch = event.touches[i]
+            const x = touch.screenX * pixelRatio
+            const y = touch.screenY * pixelRatio
+            const color = activeColor === -1 ? pickColor(x, y) : activeColor
             fingerDraw[touch.identifier] = {
-                pos: {
-                    x: touch.screenX * pixelRatio,
-                    y: touch.screenY * pixelRatio,
-                    timestamp: event.timeStamp || now(),
-                },
-                force: touch['force'],
-                color: activeColor
+                pos: {x, y, timestamp: event.timeStamp || now()}, color, force: touch['force']
             }
             draw(fingerDraw[touch.identifier])
         }
@@ -523,4 +572,4 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     canvas.addEventListener('touchend', touchend)
     canvas.addEventListener('touchcancel', touchend)
-})
+}

@@ -14,6 +14,14 @@ dreamer: model
 preview: node_modules protocol/service.d.ts
 	wintersmith preview --chdir client
 
+.PHONY: build
+build: node_modules protocol/service.d.ts
+	wintersmith build --chdir client -o ../build
+	uglifyjs build/dream.js \
+  		--source-map "content=inline,url=dream.js.map,filename=build/dream.js.map" \
+  		--compress "dead_code,collapse_vars,reduce_vars,keep_infinity,drop_console,passes=2" \
+  		-o build/dream.js
+
 model:
 	wget https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip
 	unzip -d model inception5h.zip
@@ -30,9 +38,11 @@ node_modules:
 
 .PHONY: clean
 clean:
+	rm -rf build
 	rm -f protocol/service.js
 	rm -f protocol/service.d.ts
 
 .PHONY: distclean
 distclean: clean
+	rm -rf model
 	rm -rf node_modules

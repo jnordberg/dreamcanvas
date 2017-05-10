@@ -1,7 +1,6 @@
 
 * {
     margin: 0; padding: 0; border: 0; line-height: 1;
-    user-select: none; -webkit-user-select: none;
     box-sizing: border-box;
 }
 
@@ -26,6 +25,7 @@ a, .status, .pan-handle, .info    {
 a, .pan-handle {
     color: #ffffff;
     font-weight: 400;
+    z-index: 2;
 }
 
 .status {
@@ -54,7 +54,7 @@ body, html, canvas {
     height: 100%;
 }
 
-canvas, div, a {
+canvas, a, .pan-handle, .picker, .status {
     position: absolute;
 }
 
@@ -75,7 +75,16 @@ canvas, div, a {
     z-index: 2;
 }
 
+.picker span.magic {
+    background: red;
+    background: -webkit-linear-gradient(left, orange , yellow, green, cyan, blue, violet);
+    background: -o-linear-gradient(right, orange, yellow, green, cyan, blue, violet);
+    background: -moz-linear-gradient(right, orange, yellow, green, cyan, blue, violet);
+    background: linear-gradient(to right, orange , yellow, green, cyan, blue, violet);
+}
+
 .info {
+    position: absolute;
     display: none;
     text-align: center;
 }
@@ -125,3 +134,88 @@ html.pan canvas, html.pan-move canvas {
     cursor: move;
     opacity: 0.75;
 }
+
+.dialog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.618);
+    opacity: 0;
+    transition: 200ms ease-in all;
+    z-index: 10;
+    visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dialog.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dialog .content {
+    background-color: #e8eaed;
+    padding: 1em;
+    border-radius: 0.2em;
+    max-width: 23em;
+    border: .1em solid #fafdff;
+    transition: 300ms ease-in all;
+    transform: scale(2);
+}
+
+.dialog.visible .content {
+    transform: scale(1);
+}
+
+
+.dialog .title {
+    font-size: 1.618em;
+    margin-top: 0.21em;
+}
+
+.dialog .body {
+    margin-bottom: 1em;
+}
+
+.dialog .body p {
+    margin-top: 1em;
+    line-height: 1.25;
+}
+
+.dialog .body em {
+    color: red;
+}
+
+.dialog .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.dialog .buttons button {
+    cursor: pointer;
+    font-size: 1em;
+    background-color: #c90064;
+    padding: 0.5em;
+    border-radius: 0.1em;
+    color: #e8eaed;
+    border: .1em solid #aa0055;
+    transition: 100ms ease-in all;
+    transform: scale(1)
+}
+
+.dialog .buttons button:focus {
+    outline: none;
+    transform: scale(1.05)
+}
+
+.dialog .buttons button:active {
+    transform: scale(1.1)
+}
+
+
+
+

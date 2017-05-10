@@ -1,11 +1,22 @@
 {
   "locals": {
-    "release": "1"
+    "release": "5",
+    "raven_url": "https://e13840d1497f4f53b23a223ee902fda9@sentry.io/167791",
+    "server_url": "wss://dream.almost.digital/turtletube"
   },
   "browserify": {
+    "debug": true,
     "watchify": false,
-    "extensions": [".js", ".ts"],
-    "plugins": ["tsify"]
+    "extensions": [".ts"],
+    "plugins": ["tsify"],
+    "staticLibs": [
+      "js-cookie",
+      "lru-cache",
+      "protobufjs/minimal",
+      "raven-js",
+      "wsrpc"
+    ],
+    "staticLibsBundle": true
   },
   "nunjucks": {
     "autoescape": false

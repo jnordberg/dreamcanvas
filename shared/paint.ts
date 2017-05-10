@@ -2,8 +2,8 @@ import {IPaintRequest} from './../protocol/service'
 const Canvas = require('canvas')
 import * as LRUCache from 'lru-cache'
 
-export const canvasWidth = 1024
-export const canvasHeight = 1024
+export const canvasWidth = 1536
+export const canvasHeight = 1536
 export const brushSize = 124
 
 const brushCache = LRUCache<HTMLCanvasElement>({max: 20})

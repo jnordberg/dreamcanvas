@@ -1,47 +1,62 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Dreamcanvas</title>
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Dreamcanvas">
-  <meta property="og:url" content="https://dream.almost.digital">
-  <meta property="og:image" content="https://dream.almost.digital/dreamcanvas.jpg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css?v={{ release }}">
-  <script src="paint.js?v={{ release }}"></script>
-  {{ livereloadScript }}
-</head>
-<body>
-<!--
+  <head>
+    <title>DreamCanvas</title>
+    <meta charset="utf-8">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DreamCanvas">
+    <meta property="og:description" content="Ever dreamed about making art together with an artificial intelligence? No? Well now you can anyway! DreamCanvas is a collaborative drawing experiment by Johan Nordberg where visitors have their drawings interpreted by an artificial neural network.">
+    <meta property="og:url" content="https://dream.almost.digital">
+    <meta property="og:image" content="https://dream.almost.digital/dreamcanvas.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#151515">
+    <script type="text/javascript">
+      __release = '{{ release }}'
+      {%- if raven_url %}; __raven_url = '{{ raven_url }}'{% endif %}
+      {%- if server_url %}; __server_url = '{{ server_url }}'{% endif %}
+    </script>
+    <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css?v={{ release }}">
+    {{ livereloadScript }}{{ browserifyLibs }}<script src="dream.js?v={{ release }}"></script>
+  </head>
+  <body>
+  <a href="about.html" target="_blank">About</a>
+  <!--
 
-                                vv
-                            vvv^^^^vvvvv
-                        vvvvvvvvv^^vvvvvv^^vvvvv
-               vvvvvvvvvvv^^^^^^^^^^^^^vvvvv^^^vvvvv
-           vvvvvvv^^^^^             vvvvvvvvvv^^^vvv
-         vvvv^^^^^^vvvvv^^^^^^^vv^^^^^^^vvvv^^^vvvvvv
-        vv^^^^^^^^vvv^^^^^vv^^^^vvvvvvvvvvvv^^^^^^vv^
-        vvv^^^^^vvvv^^^^^^vvvvv^^vvvvvvvvv^^^^^^vvvvv^
-         vvvvvvvvvv^^^v^^^vvvvvv^^vvvvvvvvvv^^^vvvvvvvvv
-          ^v--><a href="about.html" target="_blank"><!--v
-            ^vvvvvvvvv^^^^vvvvvv^^^^^^vvvvvvvv^^^vvvvvvvvvv^v
-               ^^^^^^vvvv^^vvvvv^vvvv^^^v^^^^^^vvvvvv^^^^vvvvv
-        vvvv^^vvv^^^vvvvvv-->     About     <!--vvvvv^^vvvvv^
-       vvv^vvvvv^^vvvvvvv^^vvvvvvv^^vvvvv^v##vvv^vvvv^^vvvvv^v
-        ^vvvvvv^^vvvvvvvv^vv^vvv^^^^^^_____##^^^vvvvvvvv^^^^
-           ^^vvvvvvv^^vvvvvvvvvv^^^^/\@@@@@@\#vvvv^^^
-                ^^vv--></a><!--vvvv/__\@@@@@@\^vvvv^v
-                    ;^^vvvvvvvvvvv/____\@@@@@@\vvvvvvv
-                    ;      \_  ^\|[  -:] ||  | | _/^^
-                    ;        \   |[   :] ||_/| |/
-                    ;         \\ ||___:]______/
-                    ;          \   ;=; /
-                    ;           |  ;=;|
-                    ;          ()  ;=;|
-                   (()          || ;=;|
-                               / / \;=;\
-                            --><canvas><!--
--->
-</body>
+    .__ .__ .___.__..  .
+    |  \[__)[__ [__]|\/|
+    |__/|  \[___|  ||  |
+    -->   <canvas>  <!--
+
+                         H
+                         |
+                   H  H  C''H
+                    `.|,'|
+                      C  H  H
+                      |     |
+                 O    N  H  C
+                 \\ ,' `.|,'|`.
+                   C     C  H  H
+                   |     |
+                H''C     H
+                 ,' `.
+          H  H''C  H''C''H
+          |     ||    |
+    H     C     C     N  H  H
+     `. ,' `. ,' `. ,' `.|,'
+       C  _  C  H  C     C
+       | (_) |   `.|     |
+       C     C     C     H
+     ,' `. ,' `. ,' `.
+    H     C     C     H
+          |    ||
+          N'''C
+          |     |
+          H     H
+
+  -->
+  </canvas></body>
 </html>

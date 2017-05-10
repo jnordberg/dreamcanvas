@@ -21,19 +21,24 @@ const styles = [
     {layer: 'conv2d0_pre_relu', channel: 26},
     {layer: 'conv2d1', channel: 42},
     {layer: 'conv2d1_pre_relu', channel: 4242},
-    {layer: 'eyes mixed4e_5x5_bottleneck_pre_relu', channel: 27},
     {layer: 'head0_bottleneck', channel: 6},
     {layer: 'head1_bottleneck_pre_relu', channel: 4242},
     {layer: 'land mixed4d_3x3', channel: 63},
+    {layer: 'maxpool1', channel: 4242},
     {layer: 'mixed3a', channel: 120},
     {layer: 'mixed3a', channel: 43},
+    {layer: 'mixed3a_3x3', channel: 4242},
     {layer: 'mixed3a_3x3', channel: 77},
     {layer: 'mixed3a_3x3_pre_relu', channel: 4242},
     {layer: 'mixed3a_5x5', channel: 20},
     {layer: 'mixed3a_5x5_bottleneck_pre_relu', channel: 2}, // swirly things, muted colors
+    {layer: 'mixed3a_pool_reduce', channel: 13},
     {layer: 'mixed3b', channel: 4242},
     {layer: 'mixed3b_1x1_pre_relu', channel: 65},
+    {layer: 'mixed3b_3x3', channel: 144},
     {layer: 'mixed3b_5x5_pre_relu', channel: 10},
+    {layer: 'mixed3b_pool', channel: 34},
+    {layer: 'mixed4a_3x3_bottleneck_pre_relu', channel: 51},
     {layer: 'mixed4a_pool', channel: 192},
     {layer: 'mixed4a_pool', channel: 280},
     {layer: 'mixed4a_pool_reduce', channel: 4242},
@@ -41,12 +46,22 @@ const styles = [
     {layer: 'mixed4b_1x1', channel: 37},
     {layer: 'mixed4b_1x1', channel: 46},
     {layer: 'mixed4b_3x3_bottleneck', channel: 22},
+    {layer: 'mixed4b_3x3_bottleneck_pre_relu', channel: 53},
+    {layer: 'mixed4b_5x5_bottleneck', channel: 18},
     {layer: 'mixed4b_pool', channel: 4242},
+    {layer: 'mixed4c', channel: 126},
     {layer: 'mixed4c_1x1_pre_relu', channel: 4242},
+    {layer: 'mixed4c_3x3', channel: 163},
+    {layer: 'mixed4c_3x3_bottleneck', channel: 4242},
+    {layer: 'mixed4c_5x5_bottleneck', channel: 4242},
     {layer: 'mixed4c_pool_reduce', channel: 61},
+    {layer: 'mixed4d_3x3', channel: 4242},
     {layer: 'mixed4d_3x3_bottleneck_pre_relu', channel: 139}, // flowers
+    {layer: 'mixed4d_3x3_bottleneck_pre_relu', channel: 139}, // flowers again because nice
+    {layer: 'mixed4d_3x3_bottleneck_pre_relu', channel: 4242},
     {layer: 'mixed4d_5x5_bottleneck', channel: 31},
     {layer: 'mixed4d_5x5_bottleneck', channel: 4242},
+    {layer: 'mixed4d_5x5_bottleneck_pre_relu', channel: 28},
     {layer: 'mixed4d_pool_reduce_pre_relu', channel: 5},
     {layer: 'mixed4e', channel: 101},
     {layer: 'mixed4e', channel: 255},
@@ -55,40 +70,48 @@ const styles = [
     {layer: 'mixed4e_3x3_bottleneck_pre_relu', channel: 46},
     {layer: 'mixed4e_3x3_bottleneck_pre_relu', channel: 68},
     {layer: 'mixed4e_5x5_bottleneck', channel: 1},
+    {layer: 'mixed4e_5x5_bottleneck', channel: 4242},
+    {layer: 'mixed4e_5x5_bottleneck_pre_relu', channel: 27},
     {layer: 'mixed4e_pool_reduce_pre_relu', channel: 120}, // pipe eyes
     {layer: 'mixed4e_pool_reduce_pre_relu', channel: 40}, // blotchy snakes
     {layer: 'mixed4e_pool_reduce_pre_relu', channel: 41}, // blotchy snakes
     {layer: 'mixed5a_3x3', channel: 93},
+    {layer: 'mixed5a_3x3_bottleneck_pre_relu', channel: 90},
     {layer: 'mixed5a_5x5_bottleneck_pre_relu', channel: 37},
     {layer: 'mixed5b', channel: 4242},
     {layer: 'mixed5b_1x1_pre_relu', channel: 4242},
     {layer: 'mixed5b_pool_reduce_pre_relu', channel: 100}, // birds and random stuff
     {layer: 'mixed5b_pool_reduce_pre_relu', channel: 140}, // parrot mess
-    // {layer: 'mixed5b_pool_reduce_pre_relu', channel: 1}, // monkey things - to messy
     {layer: 'patterns mixed3a_3x3', channel: 4242},
 ]
 
 let dreamStyle = env['START_STYLE'] ? styles[parseInt(env['START_STYLE'])] : styles[~~(Math.random() * styles.length)]
-const dreamInterval = env['DREAM_INTEVAL'] ? parseInt(env['DREAM_INTEVAL']) : 30 * 1000
-const styleInterval = env['STYLE_INTEVAL'] ? parseInt(env['STYLE_INTERVAL']) : 60 * 1000 * 10
+const dreamInterval = env['DREAM_INTERVAL'] ? parseInt(env['DREAM_INTERVAL']) : 30 * 1000
+const styleInterval = env['STYLE_INTERVAL'] ? parseInt(env['STYLE_INTERVAL']) : 60 * 1000 * 10
 
 console.log(`dream interval ${ dreamInterval }, style change interval ${ styleInterval }`)
 
 const layers = require('./layers.json')
 function randomStyle(): {layer: string, channel: number} {
-    const layer = layers[Math.floor(Math.random()*layers.length)]
-    return {layer: layer[0], channel: Math.floor(Math.random() * layer[1])}
+    if (Math.random() > 0.5) {
+        const lastIdx = styles.indexOf(dreamStyle)
+        let idx: number
+        do {
+            idx = Math.floor(Math.random() * styles.length)
+        } while (idx === lastIdx)
+        return styles[idx]
+    } else {
+        let layer: [string, number]
+        do {
+            layer = layers[Math.floor(Math.random()*layers.length)]
+        } while (dreamStyle.layer === layer[0])
+        let channel = 4242
+        if (Math.random() > 0.4) {
+            channel = Math.floor(Math.random() * layer[1])
+        }
+        return {layer: layer[0], channel}
+    }
 }
-process.on('SIGHUP', () => {
-    dreamStyle = randomStyle()
-    console.log('changed style to', dreamStyle)
-    broadcastStatus()
-})
-setInterval(() => {
-    const idx = Math.floor(Math.random() * styles.length)
-    dreamStyle = styles[idx]
-    broadcastStatus()
-}, styleInterval)
 
 const dreamProto = grpc.load(path.join(__dirname, '../protocol/dream.proto'))
 const dreamClient = new dreamProto.Dreamer('localhost:50051', grpc.credentials.createInsecure(),
@@ -153,7 +176,7 @@ async function dreamImage(image: sharp.SharpInstance): Promise<Buffer> {
             if (error) { reject(error) } else {
                 resolve(result.image)
                 if (process.env['SAVE_DIR']) {
-                    const date = moment().format('YYYYMMDD-HHmmSS')
+                    const date = moment().format('YYYYMMDD-HHmmss')
                     const filename = path.join(process.env['SAVE_DIR'], `canvas-${ date }.png`)
                     console.log(`saving canvas to ${ filename }`)
                     fs.writeFile(filename, result.image, (error) => {
@@ -203,7 +226,7 @@ function dreamLoop() {
         }
     }).catch((error) => {
         console.log('dream failed', error.message)
-        dreamStyle = randomStyle()
+        nextStyle()
         setTimeout(dreamLoop, 500)
     })
 }
@@ -271,3 +294,15 @@ server.on('error', (error) => {
 server.on('listening', () => {
     console.log(`listening on ${ server.options.port }, pid ${ process.pid }`)
 })
+
+let styleTimer: NodeJS.Timer
+function nextStyle() {
+    clearTimeout(styleTimer)
+    dreamStyle = randomStyle()
+    console.log('new style', dreamStyle)
+    broadcastStatus()
+    styleTimer = setTimeout(nextStyle, styleInterval)
+}
+
+process.on('SIGHUP', nextStyle)
+nextStyle()

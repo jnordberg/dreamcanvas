@@ -1,1 +1,7 @@
 node_modules/
+build/
+__pycache__
+canvas.jpeg
+model/*
+protocol/*.js
+protocol/*.d.ts
